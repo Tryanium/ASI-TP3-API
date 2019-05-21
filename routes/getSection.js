@@ -15,24 +15,30 @@ const pool = mariadb.createPool({
 /* GET home page. */
 router.get('/', function(req, res, next) {
   let section = req.query.section;
-  pool.getConnection()
-  .then(conn => {
-    conn.query("USE TP3")
-      .then((rows) => {
-        return conn.query("SELECT * FROM articles WHERE section = '" + section + "' AND status='published'");
-      })
-      .then((response) => {
-        conn.end();
-        return res.send(response);
-      })
-      .catch(err => {
-        //handle error
-        console.log(err);
-        conn.end();
-      })
-  }).catch(err => {
-    //not connected
-  });
+  if(section) {
+    pool.getConnection()
+    .then(conn => {
+      conn.query("USE TP3")
+        .then((rows) => {
+          return conn.query("SELECT * FROM articles WHERE section = '" + section + "' AND status='published'");
+        })
+        .then((response) => {
+          conn.end();
+          return res.send(response);
+        })
+        .catch(err => {
+          //handle error
+          console.log(err);
+          conn.end();
+        })
+    }).catch(err => {
+      //not connected
+    });
+  }
+  else {
+    res.send("Param is not good, you have to use the 'section' param");
+  }
+
 });
 
 module.exports = router;
